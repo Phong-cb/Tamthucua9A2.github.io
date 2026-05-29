@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tâm Thư Của 9A2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<audio id="bgMusic" src="0529.mp3" autoplay loop preload="auto"></audio>
+<div class="scene">
+    <div class="envelope" id="envelope">
+        <div class="flap"></div>
+    </div>
+    <div class="paper" id="paper">
+        <div class="paper-inner">
+            <div class="paper-text"></div>
+            <div class="paper-images"></div>
+            <div class="paper-button"></div>
+        </div>
+    </div>
+    <div class="nav-controls hidden" id="navControls">
+        <button class="nav-btn back" id="prevBtn">⟵</button>
+        <button class="nav-btn next" id="nextBtn">⟶</button>
+    </div>
+    <div class="prompt">Bấm vào lá thư</div>
+</div>
+<script>
+const envelope = document.getElementById('envelope');
+const paper = document.getElementById('paper');
+const promptEl = document.querySelector('.prompt');
+const navControls = document.getElementById('navControls');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const buttonContainer = paper.querySelector('.paper-button');
+
+const textPages = [
+    'Bức thư mùa phượng nở\n\n“Có một nghề bụi phấn bám đầy tay\nNgười ta bảo đó là nghề trong sạch nhất”\n\nThưa thầy,\nChắc tới lúc bức thư này được đọc lên, tụi nhỏ A2 cũng sắp mỗi đứa một ngả, chuẩn bị gửi lời tạm biệt cuối cùng tới thầy. Ngó ra ngoài cửa lớp, bông phượng bắt đầu nhen lên mấy vệt đỏ thắt lòng giữa cái nắng chang chang của ngày hè xứ sở. Với tụi em, lời chào tạm biệt này ngộ lắm, nó hổng phải là dấu chấm hết, mà giống như một nốt lặng để tụi em cất kỹ mấy năm cấp hai khờ khạo, vô tư vào một góc trong ngực áo.',
+    'Mai này đi xa, đứa nào rồi cũng sẽ mang theo cái dáng lưng áo ướt đẫm mồ hôi của thầy—người mà tụi em vẫn hay ví von như một ông anh hùng thầm lặng, cứ cằn nhằn nhắc nhở học bài bằng cái giọng nghe thương hết sức. Đi qua một năm, từ mùa gió chướng se se lạnh lúc tựu trường cho tới khi nắng đổ lửa xuống trước sân ráo hoảnh như lúc này, tụi em biết tóc thầy có khi đã bạc thêm mấy sợi vì lo. Thầy lo tụi em thua sút người ta, lo tụi em ham chơi rồi trật đường ray chữ nghĩa. Mỗi lần tụi trò này tụm lại nói chuyện, thầy hay dọa bắt quỳ gối, dọa méc má cho tụi em sợ. Vậy mà dọa thì dọa vậy thôi, chứ có bao giờ thầy nỡ làm thiệt, thầy thương tụi em còn hổng hết.',
+    'Thời gian ngộ quá, cứ đi qua một ngày lại rớt lại một lọn nhớ thương. Tụi em sao quên được hôm chiều trung thu năm ấy—lần đầu tiên mà cái khoảng cách giữa thầy và trò bỗng dưng mất tiêu, chỉ còn lại những tiếng cười giòn tan chung một nhịp đập. Nhớ hoài buổi trăng rằm mị mị màu sắp mưa và tấm hình đầu tiên chụp chung với thầy. Rồi tới gian hàng hội xuân rộn ràng, cái gian hàng nhỏ xíu mà sao thân thương đến mức khó tả. Và cả chuyến xe đi tuốt dưới Long Xuyên ngày ấy, nó chở theo lỉnh kỉnh những buồn vui và hình hài kỷ niệm của một thời niên thiếu nông nổi mà chân thành.',
+    'Tụi em nợ thầy nhiều lắm, một lời cảm ơn nói sao cho vừa. Cảm ơn thầy vì đã không buông tay những lúc tụi em cứng đầu cứng cổ, cảm ơn cả những vết hằn lo toan trên trán thầy để đổi lấy sự khôn lớn của tụi em ngày hôm nay. Cảm ơn thầy vì đã làm một người đưa đò bao dung và nhẫn nại đến thế, mặc cho tụi trò nhỏ nhiều phen làm thầy phiền lòng.\n\nMùa hè này rồi cũng sẽ qua, bông phượng rồi sẽ rụng tơi tả trên mặt sân trường cũ, nhưng cái tình thầy trò mình gieo lại nơi đây thì vẫn cứ xanh hoài như mấy chùm tre vĩnh cửu. Chúc thầy luôn bình yên, chân cứng đá mềm để đưa thêm nhiều chuyến đò sau qua sông, nha thầy!\n\nPhú Mỹ, ngày 30, tháng 5, năm 2026\n\nNhững Đứa Con A2\n…\nGửi Thầy'
+];
+const imageFiles = [
+    '1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg','7.jpg','8.jpg','9.jpg','10.jpg',
+    '11.jpg','12.jpg','13.jpg','14.jpg','15.jpg','16.jpg','17.jpg','18.jpg','19.jpg','20.jpg',
+    '21.jpg','22.jpg','23.jpg','24.jpg','25.jpg','26.jpg','27.jpg','28.jpg','29.jpg'
+];
+const pages = buildPagesWithImages(textPages, imageFiles);
+const videoPage = { type: 'video', src: 'vid.mp4' };
+const thanksPage = {
+    type: 'thanks',
+    title: 'CẢM ƠN THẦY VÌ ĐÃ ĐỒNG HÀNH CÙNG CHÚNG EM!!!'
+};
+const closePage = { type: 'close' };
+let pageIndex = 0;
+let opened = false;
+let heartTimer = null;
+const bgMusic = document.getElementById('bgMusic');
+
+function buildPagesWithImages(textPages, imageFiles) {
+    const sortedFiles = imageFiles.slice().sort((a, b) => {
+        const aNum = parseInt(a.match(/\d+/)?.[0] || '0', 10);
+        const bNum = parseInt(b.match(/\d+/)?.[0] || '0', 10);
+        return aNum - bNum || a.localeCompare(b, undefined, { numeric: true });
+    });
+    const readyPage = {
+        type: 'ready',
+        title: 'ARE YOU READY?',
+        buttonText: 'SẴN SÀNG'
+    };
+    const imagePages = sortedFiles.map((filename, index) => ({
+        type: 'images',
+        title: `Ảnh kỷ niệm trang ${index + 1}`,
+        images: [filename]
+    }));
+    return [...textPages, ...imagePages, readyPage];
+}
+
+window.addEventListener('load', () => {
+    if (bgMusic) {
+        bgMusic.play().catch(() => {
+            // Autoplay may be blocked until user interaction
+        });
+    }
+});
+
+function updatePage() {
+    const current = pages[pageIndex];
+    const textEl = paper.querySelector('.paper-text');
+    const imagesEl = paper.querySelector('.paper-images');
+
+    buttonContainer.innerHTML = '';
+    paper.classList.remove('image-page', 'video-page', 'ready-page', 'thanks-page', 'close-page');
+
+    if (typeof current === 'string') {
+        textEl.textContent = current;
+        imagesEl.innerHTML = '';
+    } else if (current.type === 'ready') {
+        paper.classList.add('ready-page');
+        textEl.textContent = current.title;
+        imagesEl.innerHTML = '';
+        buttonContainer.innerHTML = `<button id="readyBtn" class="ready-btn">${current.buttonText}</button>`;
+        document.getElementById('readyBtn').addEventListener('click', handleReadyClick);
+    } else if (current.type === 'video') {
+        paper.classList.add('video-page');
+        textEl.textContent = '';
+        buttonContainer.innerHTML = '';
+        imagesEl.innerHTML = `<video id="videoPlayer" src="${current.src}" controls autoplay playsinline></video>`;
+        const videoEl = document.getElementById('videoPlayer');
+        if (videoEl) {
+            videoEl.muted = false;
+            videoEl.volume = 1;
+            videoEl.play().catch(() => {});
+        }
+        if (bgMusic) {
+            bgMusic.pause();
+        }
+    } else if (current.type === 'thanks') {
+        paper.classList.add('thanks-page');
+        textEl.textContent = current.title;
+        imagesEl.innerHTML = '';
+        if (bgMusic) {
+            bgMusic.play().catch(() => {});
+        }
+        buttonContainer.innerHTML = '';
+    } else if (current.type === 'close') {
+        closeLetter();
+        return;
+    } else {
+        paper.classList.add('image-page');
+        textEl.textContent = current.title;
+        imagesEl.innerHTML = current.images
+            .map(image => `<img src="${image}" alt="Ảnh kỷ niệm ${image}">`)
+            .join('');
+    }
+
+    prevBtn.style.display = pageIndex > 0 ? 'block' : 'none';
+    nextBtn.style.display = pageIndex < pages.length - 1 ? 'block' : 'none';
+    navControls.style.justifyContent = pageIndex === 0 ? 'flex-end' : 'space-between';
+}
+
+function handleReadyClick() {
+    if (!pages.some(page => page.type === 'video')) {
+        pages.splice(pageIndex + 1, 0, videoPage, thanksPage, closePage);
+    }
+    if (bgMusic) {
+        bgMusic.pause();
+    }
+    changePage(pageIndex + 1);
+}
+
+function closeLetter() {
+    const videoEl = document.getElementById('videoPlayer');
+    if (videoEl) {
+        videoEl.pause();
+        videoEl.src = '';
+    }
+    paper.classList.remove('visible', 'fullscreen', 'image-page', 'video-page', 'ready-page', 'thanks-page');
+    paper.classList.add('fly');
+    setTimeout(() => {
+        paper.classList.remove('fly');
+        paper.style.opacity = '0';
+    }, 400);
+    envelope.classList.remove('gone', 'opened');
+    promptEl.classList.remove('hidden');
+    navControls.classList.add('hidden');
+    if (bgMusic) {
+        bgMusic.play().catch(() => {});
+    }
+}
+
+function changePage(newIndex) {
+    if (newIndex === pageIndex || newIndex < 0 || newIndex >= pages.length) return;
+    const directionClass = newIndex > pageIndex ? 'slide-left' : 'slide-right';
+    paper.classList.add(directionClass);
+    pageIndex = newIndex;
+    updatePage();
+    setTimeout(() => {
+        paper.classList.remove(directionClass);
+    }, 220);
+}
+
+envelope.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+    envelope.classList.add('opened');
+    promptEl.classList.add('hidden');
+    paper.classList.add('visible');
+    navControls.classList.remove('hidden');
+    updatePage();
+    createHearts(24);
+    setTimeout(() => {
+        paper.classList.add('pull');
+    }, 150);
+    setTimeout(() => {
+        envelope.classList.add('gone');
+        paper.classList.add('fullscreen');
+    }, 700);
+    heartTimer = setInterval(() => createHearts(1 + Math.floor(Math.random() * 2)), 400);
+    if (bgMusic) {
+        bgMusic.play().catch(() => {});
+    }
+});
+
+prevBtn.addEventListener('click', () => changePage(pageIndex - 1));
+nextBtn.addEventListener('click', () => changePage(pageIndex + 1));
+
+function createHearts(count) {
+    for (let i = 0; i < count; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        const size = 16 + Math.random() * 32;
+        heart.style.width = `${size}px`;
+        heart.style.height = `${size}px`;
+        heart.style.left = `${5 + Math.random() * 90}%`;
+        heart.style.animationDuration = `${3 + Math.random() * 2.5}s`;
+        heart.style.opacity = `${0.5 + Math.random() * 0.5}`;
+        heart.style.transform = `scale(${0.8 + Math.random() * 0.8}) rotate(-45deg)`;
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 7000);
+    }
+}
+</script>
+</body>
+</html>
